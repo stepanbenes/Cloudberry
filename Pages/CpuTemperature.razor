@@ -1,6 +1,7 @@
 ﻿@page "/cputemp"
 @using Cloudberry.Data
 @inject CpuTemperatureService CpuTempService
+@implements IDisposable
 
 <div id="wrapper">
     <h3>CPU temperature</h3>
@@ -15,15 +16,22 @@
     double cpuTemperature;
     double minTemp = 20;
     double maxTemp = 100;
+    bool isDisposed = false;
 
     protected override async Task OnInitAsync()
     {
-        var random = new Random();
         while (true)
         {
             cpuTemperature = CpuTempService.GetTemperatureInCelsius();
             await Task.Delay(1000);
+            if (isDisposed)
+                break;
             StateHasChanged();
         }
+    }
+
+    public void Dispose()
+    {
+        isDisposed = true;
     }
 }
