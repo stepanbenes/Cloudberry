@@ -2,20 +2,27 @@
 @using Cloudberry.Data
 @inject CpuTemperatureService CpuTempService
 
-<h3>CPU temperature</h3>
-
-<p>@($"{cpuTemperature:0.0} °C")</p>
+<div id="wrapper">
+    <h3>CPU temperature</h3>
+    <div id="termometer">
+        <div id="temperature" style="height:@($"{(int)Math.Round((cpuTemperature - minTemp) / (maxTemp - minTemp) * 100)}%;")" data-value="@($"{cpuTemperature:0.0}°C")"></div>
+        <div id="graduations"></div>
+    </div>
+</div>
 
 @code {
 
     double cpuTemperature;
+    double minTemp = 20;
+    double maxTemp = 100;
 
     protected override async Task OnInitAsync()
     {
+        var random = new Random();
         while (true)
         {
             cpuTemperature = CpuTempService.GetTemperatureInCelsius();
-            await Task.Delay(500);
+            await Task.Delay(1000);
             StateHasChanged();
         }
     }
