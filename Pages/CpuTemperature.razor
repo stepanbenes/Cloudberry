@@ -4,14 +4,19 @@
 
 <h3>CPU temperature</h3>
 
-<p>@cpuTemperature °C</p>
+<p>@($"{cpuTemperature:0.0} °C")</p>
 
 @code {
 
     double cpuTemperature;
 
-    protected override void OnInit()
+    protected override async Task OnInitAsync()
     {
-        cpuTemperature = CpuTempService.GetTemperatureInCelsius();
+        while (true)
+        {
+            cpuTemperature = CpuTempService.GetTemperatureInCelsius();
+            await Task.Delay(500);
+            StateHasChanged();
+        }
     }
 }
