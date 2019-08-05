@@ -1,0 +1,17 @@
+﻿@page "/cputemp"
+@using Cloudberry.Data
+@inject CpuTemperatureService CpuTempService
+
+<h3>CPU temperature</h3>
+
+<p>@cpuTemperature °C</p>
+
+@code {
+
+    double cpuTemperature;
+
+    protected override void OnInit()
+    {
+        cpuTemperature = CpuTempService.GetTemperatureInCelsius();
+    }
+}
