@@ -52,6 +52,7 @@
     protected override async Task OnAfterRenderAsync()
     {
         this._context = await this._canvasReference.CreateCanvas2DAsync();
+        await this._context.BeginBatchAsync();
         await this._context.ClearRectAsync(0, 0, canvasWidth, canvasHeight);
 
         await this._context.SetLineWidthAsync(2.0f);
@@ -68,6 +69,7 @@
             }
             await this._context.StrokeAsync();
         }
+        await this._context.EndBatchAsync();
         double getYPosition(double value) => canvasHeight - ((value - minTemp) / (maxTemp - minTemp)) * canvasHeight;
     }
 
