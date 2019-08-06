@@ -1,7 +1,11 @@
 ﻿@page "/cputemp"
 @using Cloudberry.Data
-@inject CpuTemperatureService CpuTempService
+@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D;
+@inject ICpuTemperatureService CpuTempService
 @implements IDisposable
+
 
 <div id="wrapper">
     <h3>CPU temperature</h3>
@@ -11,27 +15,64 @@
     </div>
 </div>
 
+<div class="text-center">
+    <BECanvas @ref="_canvasReference" Width="@((long)canvasWidth)" Height="@((long)canvasHeight)"></BECanvas>
+</div>
+
 @code {
 
+    private Canvas2DContext _context;
+    private BECanvasComponent _canvasReference;
+
     double cpuTemperature;
-    double minTemp = 20;
-    double maxTemp = 100;
-    bool isDisposed = false;
+    readonly double minTemp = 20;
+    readonly double maxTemp = 100;
+    readonly double canvasWidth = 800;
+    readonly double canvasHeight = 400;
+    bool _isDisposed = false;
+    List<double> data;
 
     protected override async Task OnInitAsync()
     {
+        data = new List<double>();
         while (true)
         {
             cpuTemperature = CpuTempService.GetTemperatureInCelsius();
+            if (!double.IsNaN(cpuTemperature))
+            {
+                data.Add(cpuTemperature);
+            }
             await Task.Delay(1000);
-            if (isDisposed)
+            if (_isDisposed)
                 break;
             StateHasChanged();
         }
     }
 
+    protected override async Task OnAfterRenderAsync()
+    {
+        this._context = await this._canvasReference.CreateCanvas2DAsync();
+        await this._context.ClearRectAsync(0, 0, canvasWidth, canvasHeight);
+
+        await this._context.SetLineWidthAsync(2.0f);
+        await this._context.SetStrokeStyleAsync("#F07D23");
+
+        if (data.Count > 1)
+        {
+            await this._context.BeginPathAsync();
+            double xPosition = canvasWidth - 2.0;
+            await this._context.MoveToAsync(xPosition, getYPosition(data.Last()));
+            for (int i = data.Count - 1; i >= 0 && xPosition > 0.0; i -= 1, xPosition -= 4.0)
+            {
+                await this._context.LineToAsync(xPosition, getYPosition(data[i]));
+            }
+            await this._context.StrokeAsync();
+        }
+        double getYPosition(double value) => canvasHeight - ((value - minTemp) / (maxTemp - minTemp)) * canvasHeight;
+    }
+
     public void Dispose()
     {
-        isDisposed = true;
+        _isDisposed = true;
     }
 }
