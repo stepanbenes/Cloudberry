@@ -15,7 +15,7 @@
 
     protected override void OnInitialized()
     {
-        gpioController.OpenPin(pin);
+        gpioController.OpenPin(pin, PinMode.Output);
     }
 
     public void Dispose()
