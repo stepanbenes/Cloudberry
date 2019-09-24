@@ -26,7 +26,7 @@
     void IncrementCount()
     {
         currentCount++;
-        if (currentCount % 2 == 0)
+        if (currentCount % 2 == 1)
         {
             gpioController.Write(pin, PinValue.High);
         }
