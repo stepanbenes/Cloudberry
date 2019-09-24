@@ -1,4 +1,6 @@
 ﻿@page "/counter"
+@using System.Device.Gpio
+@implements IDisposable
 
 <h1>Counter</h1>
 
@@ -8,9 +10,29 @@
 
 @code {
     int currentCount = 0;
+    readonly GpioController gpioController = new GpioController(PinNumberingScheme.Board);
+    readonly int pin = 37;
+
+    protected override void OnInitialized()
+    {
+        gpioController.OpenPin(pin);
+    }
+
+    public void Dispose()
+    {
+        gpioController.ClosePin(pin);
+    }
 
     void IncrementCount()
     {
         currentCount++;
+        if (currentCount % 2 == 0)
+        {
+            gpioController.Write(pin, PinValue.High);
+        }
+        else
+        {
+            gpioController.Write(pin, PinValue.Low);
+        }
     }
 }
