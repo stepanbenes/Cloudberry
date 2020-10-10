@@ -1,0 +1,109 @@
+@page "/marecheck"
+
+@using ChartJs.Blazor.Charts
+@using ChartJs.Blazor.ChartJS.Common
+@using ChartJs.Blazor.ChartJS.Common.Properties
+@using ChartJs.Blazor.ChartJS.Common.Enums
+@using ChartJs.Blazor.ChartJS.LineChart
+@using ChartJs.Blazor.ChartJS.Common.Axes
+@using ChartJs.Blazor.ChartJS.Common.Axes.Ticks
+@using ChartJs.Blazor.ChartJS.Common.Handlers
+@using Cloudberry.Data
+
+@inject MarkWeightService MarkWeightService
+
+<ChartJsLineChart @ref="_lineChart" Config="@_config" Width="600" Height="300"/>
+
+@code {
+
+private LineConfig _config;
+private ChartJsLineChart _lineChart;
+
+
+protected override async Task OnInitializedAsync()
+{
+	// see: https://github.com/mariusmuntean/ChartJs.Blazor/blob/master/samples/Shared/ChartJs.Blazor.Sample.Shared/Components/LineChart/LinearLineChartComponent.razor
+
+    _config = new LineConfig
+        {
+            Options = new LineOptions
+            {
+                Responsive = true,
+                Title = new OptionsTitle
+                {
+                    Display = true,
+                    Text = "Markova váha"
+                },
+                Legend = new Legend
+                {
+                    Position = Position.Right,
+                    Labels = new LegendLabelConfiguration
+                    {
+                        UsePointStyle = true
+                    }
+                },
+                Tooltips = new Tooltips
+                {
+                    Mode = InteractionMode.Nearest,
+                    Intersect = false
+                },
+                Scales = new Scales
+                {
+                    xAxes = new List<CartesianAxis>
+                    {
+                        new LinearCartesianAxis
+                        {
+                            ScaleLabel = new ScaleLabel
+                            {
+                                LabelString = "Den"
+                            },
+                            GridLines = new GridLines
+                            {
+                                Display = true
+                            },
+                            Ticks = new LinearCartesianTicks
+                            {
+                                SuggestedMin = 0,
+                            }
+                        }
+                    },
+                    yAxes = new List<CartesianAxis>
+                    {
+                        new LinearCartesianAxis
+                        {
+                            ScaleLabel = new ScaleLabel
+                            {
+                                LabelString = "Váha [g]"
+                            },
+                            Ticks = new LinearCartesianTicks
+                            {
+                                
+                            }
+                        }
+                    }
+                },
+                Hover = new LineOptionsHover
+                {
+                    Intersect = true,
+                    Mode = InteractionMode.Y
+                },
+
+            }
+        };
+
+    var points = new List<int, Point>();
+    await foreach (var (day, weight) in MarkWeightService.GetMarkWeightPointsAsync())
+    {
+        points.Add(day, new Point(day, weight));
+    }
+
+    var lineset = new LineDataset<Point>(points)
+    {
+        BorderWidth = 10,
+        BorderColor = "#AAAAFF",
+    };
+
+    _config.Data.Datasets.Add(lineset);
+    
+}
+}
