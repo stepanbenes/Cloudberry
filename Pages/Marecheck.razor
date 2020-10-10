@@ -91,13 +91,13 @@ protected override async Task OnInitializedAsync()
             }
         };
 
-    var points = new List<int, Point>();
+    var points = new SortedDictionary<int, Point>();
     await foreach (var (day, weight) in MarkWeightService.GetMarkWeightPointsAsync())
     {
         points.Add(day, new Point(day, weight));
     }
 
-    var lineset = new LineDataset<Point>(points)
+    var lineset = new LineDataset<Point>(points.Values)
     {
         BorderWidth = 10,
         BorderColor = "#AAAAFF",
