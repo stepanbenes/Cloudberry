@@ -10,7 +10,7 @@ namespace Cloudberry.Data
 	{
 		public async IAsyncEnumerable<(int day, int weight)> GetMarkWeightPointsAsync()
 		{
-			foreach (var directorypath in Directory.EnumerateDirectories(@"/mnt/sidlo_backup/data/hovada/sidlo/denik"))
+			foreach (var directorypath in Directory.EnumerateDirectories(@"/mnt/sidlo_data/hovada/marek/denik"))
 			{
 				string? textFilePath = Directory.EnumerateFiles(directorypath, "*.txt").SingleOrDefault();
 				if (textFilePath is object)
