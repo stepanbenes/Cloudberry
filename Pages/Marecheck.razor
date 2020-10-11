@@ -7,24 +7,28 @@
 @using ChartJs.Blazor.ChartJS.LineChart
 @using ChartJs.Blazor.ChartJS.Common.Axes
 @using ChartJs.Blazor.ChartJS.Common.Axes.Ticks
-@using ChartJs.Blazor.ChartJS.Common.Handlers
 @using Cloudberry.Data
+@using ChartJs.Blazor.Interop
+@using ChartJs.Blazor.ChartJS.Common.Handlers
+@using Newtonsoft.Json.Linq
 
 @inject MarkWeightService MarkWeightService
 
-<ChartJsLineChart @ref="_lineChart" Config="@_config" Width="600" Height="300"/>
+@*<ChartJsLineChart @ref="_lineChart" Config="@_config" Width="600" Height="300"/>*@
+<Chart TConfig="LineConfig" Config="_config" @ref="_lineChart"></Chart>
 
 @code {
 
-private LineConfig _config;
-private ChartJsLineChart _lineChart;
+    private LineConfig _config;
+    private Chart<LineConfig> _lineChart;
 
 
-protected override async Task OnInitializedAsync()
-{
-	// see: https://github.com/mariusmuntean/ChartJs.Blazor/blob/master/samples/Shared/ChartJs.Blazor.Sample.Shared/Components/LineChart/LinearLineChartComponent.razor
 
-    _config = new LineConfig
+    protected override async Task OnInitializedAsync()
+    {
+        // see: https://github.com/mariusmuntean/ChartJs.Blazor/blob/master/samples/Shared/ChartJs.Blazor.Sample.Shared/Components/LineChart/LinearLineChartComponent.razor
+
+        _config = new LineConfig
         {
             Options = new LineOptions
             {
@@ -36,8 +40,9 @@ protected override async Task OnInitializedAsync()
                 },
                 Legend = new Legend
                 {
+                    Display = false,
                     Position = Position.Right,
-                    Labels = new LegendLabelConfiguration
+                    Labels = new LegendLabels
                     {
                         UsePointStyle = true
                     }
@@ -49,61 +54,65 @@ protected override async Task OnInitializedAsync()
                 },
                 Scales = new Scales
                 {
-                    xAxes = new List<CartesianAxis>
+                    XAxes = new List<CartesianAxis>
+                {
+                    new LinearCartesianAxis
                     {
-                        new LinearCartesianAxis
+                        ScaleLabel = new ScaleLabel
                         {
-                            ScaleLabel = new ScaleLabel
-                            {
-                                LabelString = "Den"
-                            },
-                            GridLines = new GridLines
-                            {
-                                Display = true
-                            },
-                            Ticks = new LinearCartesianTicks
-                            {
-                                SuggestedMin = 0,
-                            }
-                        }
-                    },
-                    yAxes = new List<CartesianAxis>
-                    {
-                        new LinearCartesianAxis
+                            LabelString = "Den"
+                        },
+                        GridLines = new GridLines
                         {
-                            ScaleLabel = new ScaleLabel
-                            {
-                                LabelString = "Váha [g]"
-                            },
-                            Ticks = new LinearCartesianTicks
-                            {
-                                
-                            }
+                            Display = true
+                        },
+                        Ticks = new LinearCartesianTicks
+                        {
+                            SuggestedMin = 0,
                         }
                     }
                 },
-                Hover = new LineOptionsHover
+                    YAxes = new List<CartesianAxis>
+                {
+                    new LinearCartesianAxis
+                    {
+                        ScaleLabel = new ScaleLabel
+                        {
+                            LabelString = "Váha [g]"
+                        },
+                        Ticks = new LinearCartesianTicks
+                        {
+                        }
+                    }
+                }
+                },
+                Hover = new Hover
                 {
                     Intersect = true,
                     Mode = InteractionMode.Y
                 },
-
+                OnHover = new DelegateHandler<ChartMouseEvent>(OnLineClick),
             }
         };
 
-    var points = new SortedDictionary<int, Point>();
-    await foreach (var (day, weight) in MarkWeightService.GetMarkWeightPointsAsync())
-    {
-        points.Add(day, new Point(day, weight));
+        var points = new SortedDictionary<int, Point>();
+        await foreach (var (day, weight) in MarkWeightService.GetMarkWeightPointsAsync())
+        {
+            points.Add(day, new Point(day, weight));
+        }
+
+        var lineset = new LineDataset<Point>(points.Values)
+        {
+            BorderWidth = 10,
+            BorderColor = "#AAAAFF",
+        };
+
+        _config.Data.Datasets.Add(lineset);
+
     }
 
-    var lineset = new LineDataset<Point>(points.Values)
+    void OnLineClick(JObject mouseEvent, JArray activeElements)
     {
-        BorderWidth = 10,
-        BorderColor = "#AAAAFF",
-    };
-
-    _config.Data.Datasets.Add(lineset);
-    
-}
+        
+    }
 }

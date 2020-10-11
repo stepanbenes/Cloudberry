@@ -7,9 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="C:\Users\benes\.nuget\packages\chartjs.blazor\2.0.0-preview1\contentFiles\any\netstandard2.1\tsbuild\release\tsconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ChartJs.Blazor" Version="2.0.0-preview1" />
     <PackageReference Include="Iot.Device.Bindings" Version="1.0.0" />
     <PackageReference Include="System.Device.Gpio" Version="1.0.0" />
-    <PackageReference Include="ChartJs.Blazor" Version="1.1.0" />
   </ItemGroup>
 
 </Project>
