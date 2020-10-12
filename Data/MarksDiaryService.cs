@@ -9,11 +9,15 @@ namespace Cloudberry.Data
 {
 	public class Day : IComparable<Day>, IEquatable<Day>
 	{
-		public Day(int day, int weight) => (DayNumber, Weight) = (day, weight);
+		public Day(int day, int? weight, IReadOnlyList<string> images) => (DayNumber, Weight, Images) = (day, weight, images);
 
 		public int DayNumber { get; } // 0-based
-		public int Weight { get; } // g
+		public int? Weight { get; } // g
 		public string? Note { get; set; }
+
+		public IReadOnlyList<string> Images { get; }
+
+		public DateTime Date => new DateTime(2020, 8, 27, 10, 33, 0).AddDays(DayNumber);
 
 		public int CompareTo(Day? other) => this.DayNumber.CompareTo(other?.DayNumber ?? -1);
 
@@ -50,19 +54,42 @@ namespace Cloudberry.Data
 		{
 			foreach (var directorypath in Directory.EnumerateDirectories(@"/mnt/sidlo_data/data/marek/denik"))
 			{
-				string? textFilePath = Directory.EnumerateFiles(directorypath, "*.txt").SingleOrDefault();
-				if (textFilePath is object)
+				string[] tokens = Path.GetFileNameWithoutExtension(directorypath).Split('_');
+				if (tokens.Length <= 1)
+					continue;
+				string dayString = tokens[1];
+				if (int.TryParse(dayString, out int day))
 				{
-					string dayString = Path.GetFileNameWithoutExtension(directorypath).Split('_')[1];
-					if (int.TryParse(dayString, out int day))
-					{
-						string fileContent = await File.ReadAllTextAsync(textFilePath);
+					string? text = null;
+					int? weight = null;
+					var images = new List<string>();
 
-						if (int.TryParse(fileContent[..fileContent.IndexOf(' ')], out int weight))
+					foreach (var filepath in Directory.EnumerateFiles(directorypath))
+					{
+						string extension = Path.GetExtension(filepath);
+						switch (extension.ToLowerInvariant())
 						{
-							yield return new Day(day, weight) { Note = fileContent };
+							case ".txt":
+								{
+									text = await File.ReadAllTextAsync(filepath);
+									if (int.TryParse(text[..text.IndexOf(' ')], out int value))
+									{
+										weight = value;
+									}
+								}
+								break;
+							case ".jpg":
+							case ".jpeg":
+							case ".png":
+							case ".gif":
+								{
+									images.Add(filepath);
+								}
+								break;
 						}
 					}
+
+					yield return new Day(day, weight, images) { Note = text };
 				}
 			}
 		}

@@ -13,29 +13,36 @@
 @using Newtonsoft.Json.Linq
 
 @inject MarksDiaryService MarkWeightService
-@*<ChartJsLineChart @ref="_lineChart" Config="@_config" Width="600" Height="300"/>*@
+
 <Chart TConfig="LineConfig" Config="config" @ref="lineChart"></Chart>
 
+<div class="my-4">
+    <select class="form-control" @bind="selectedDayNumber">
+        <option value="-1">[Vyber den]</option>
+        @foreach (var day in diary.Values)
+        {
+            <option value="@day.DayNumber">Den @(day.DayNumber) (@(day.Date.ToShortDateString()) @(day.Date.DayOfWeek))</option>
+        }
+    </select>
+</div>
 
-<select @bind="selectedDayNumber">
-    @foreach (var day in diary.Values)
+<div class="my-4">
+    @if (diary.TryGetValue(selectedDayNumber, out var selectedDay))
     {
-        <option value="@day.DayNumber">Day @day.DayNumber</option>
+        <textarea class="form-control" @bind="@selectedDay.Note" style="height: 200px;"></textarea>
+
+        @*<button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync">Uložit změny</button>*@
+
+        <div class="my-4">
+            @foreach (var imageFilepath in selectedDay.Images)
+            {
+                <img src="file://asus-router/data/marek/denik/den_03/IMG_4328.jpg" class="img-fluid" />
+            }
+        </div>
     }
-</select>
+</div>
 
-@if (selectedDayNumber is object && diary.TryGetValue(selectedDayNumber.Value, out var selectedDay))
-{
-    <p>Weight: @(selectedDay.Weight) g</p>
 
-    <p>@selectedDay.Note</p>
-}
-
-@*<h1>Counter</h1>
-
-<p>Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>*@
 
 @code {
 
@@ -43,7 +50,7 @@
     private Chart<LineConfig>? lineChart;
 
     private SortedDictionary<int, Day> diary = new SortedDictionary<int, Day>();
-    private int? selectedDayNumber;
+    private int selectedDayNumber = -1;
 
     public Marecheck()
     {
@@ -76,7 +83,7 @@
                 Scales = new Scales
                 {
                     XAxes = new List<CartesianAxis>
-                    {
+            {
                         new LinearCartesianAxis
                         {
                             ScaleLabel = new ScaleLabel
@@ -94,7 +101,7 @@
                         }
                     },
                     YAxes = new List<CartesianAxis>
-                    {
+            {
                     new LinearCartesianAxis
                     {
                         ScaleLabel = new ScaleLabel
@@ -125,7 +132,7 @@
             days.Add(day.DayNumber, day);
         }
 
-        var lineset = new LineDataset<Point>(days.Values.Select(day => new Point(day.DayNumber, day.Weight)))
+        var lineset = new LineDataset<Point>(days.Values.Where(day => day.Weight.HasValue).Select(day => new Point(day.DayNumber, day.Weight.GetValueOrDefault())))
         {
             BorderWidth = 10,
             BorderColor = "#AAAAFF",
@@ -133,6 +140,11 @@
 
         config.Data.Datasets.Add(lineset);
         this.diary = days;
+    }
+
+    async Task SaveChangesAsync()
+    {
+
     }
 
     //void OnLineClick(JObject mouseEvent, JArray activeElements)
