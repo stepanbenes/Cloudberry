@@ -12,23 +12,44 @@
 @using ChartJs.Blazor.ChartJS.Common.Handlers
 @using Newtonsoft.Json.Linq
 
-@inject MarkWeightService MarkWeightService
-
+@inject MarksDiaryService MarkWeightService
 @*<ChartJsLineChart @ref="_lineChart" Config="@_config" Width="600" Height="300"/>*@
-<Chart TConfig="LineConfig" Config="_config" @ref="_lineChart"></Chart>
+<Chart TConfig="LineConfig" Config="config" @ref="lineChart"></Chart>
+
+
+<select @bind="selectedDayNumber">
+    @foreach (var day in diary.Values)
+    {
+        <option value="@day.DayNumber">Day @day.DayNumber</option>
+    }
+</select>
+
+@if (selectedDayNumber is object && diary.TryGetValue(selectedDayNumber.Value, out var selectedDay))
+{
+    <p>Weight: @(selectedDay.Weight) g</p>
+
+    <p>@selectedDay.Note</p>
+}
+
+@*<h1>Counter</h1>
+
+<p>Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>*@
 
 @code {
 
-    private LineConfig _config;
-    private Chart<LineConfig> _lineChart;
+    private LineConfig config;
+    private Chart<LineConfig>? lineChart;
 
+    private SortedDictionary<int, Day> diary = new SortedDictionary<int, Day>();
+    private int? selectedDayNumber;
 
-
-    protected override async Task OnInitializedAsync()
+    public Marecheck()
     {
         // see: https://github.com/mariusmuntean/ChartJs.Blazor/blob/master/samples/Shared/ChartJs.Blazor.Sample.Shared/Components/LineChart/LinearLineChartComponent.razor
 
-        _config = new LineConfig
+        config = new LineConfig
         {
             Options = new LineOptions
             {
@@ -55,25 +76,25 @@
                 Scales = new Scales
                 {
                     XAxes = new List<CartesianAxis>
-                {
-                    new LinearCartesianAxis
                     {
-                        ScaleLabel = new ScaleLabel
+                        new LinearCartesianAxis
                         {
-                            LabelString = "Den"
-                        },
-                        GridLines = new GridLines
-                        {
-                            Display = true
-                        },
-                        Ticks = new LinearCartesianTicks
-                        {
-                            SuggestedMin = 0,
+                            ScaleLabel = new ScaleLabel
+                            {
+                                LabelString = "Den"
+                            },
+                            GridLines = new GridLines
+                            {
+                                Display = true
+                            },
+                            Ticks = new LinearCartesianTicks
+                            {
+                                SuggestedMin = 0,
+                            }
                         }
-                    }
-                },
+                    },
                     YAxes = new List<CartesianAxis>
-                {
+                    {
                     new LinearCartesianAxis
                     {
                         ScaleLabel = new ScaleLabel
@@ -94,21 +115,24 @@
                 //OnClick = new DelegateHandler<ChartMouseEvent>(OnLineClick),
             }
         };
+    }
 
-        var points = new SortedDictionary<int, Point>();
-        await foreach (var (day, weight) in MarkWeightService.GetMarkWeightPointsAsync())
+    protected override async Task OnInitializedAsync()
+    {
+        var days = new SortedDictionary<int, Day>();
+        await foreach (var day in MarkWeightService.GetMarkDaysAsync())
         {
-            points.Add(day, new Point(day, weight));
+            days.Add(day.DayNumber, day);
         }
 
-        var lineset = new LineDataset<Point>(points.Values)
+        var lineset = new LineDataset<Point>(days.Values.Select(day => new Point(day.DayNumber, day.Weight)))
         {
             BorderWidth = 10,
             BorderColor = "#AAAAFF",
         };
 
-        _config.Data.Datasets.Add(lineset);
-
+        config.Data.Datasets.Add(lineset);
+        this.diary = days;
     }
 
     //void OnLineClick(JObject mouseEvent, JArray activeElements)
