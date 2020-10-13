@@ -31,7 +31,7 @@
     {
         <textarea class="form-control" @bind="@selectedDayText" style="height: 200px;"></textarea>
 
-        <button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync" disabled="@(selectedDay.Text != selectedDayText)">Uložit změny</button>
+        <button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync" disabled="@(selectedDay.Text == selectedDayText)">Uložit změny</button>
 
         <div class="my-4">
             @foreach (var imageFilepath in selectedDay.Images)
