@@ -9,13 +9,16 @@ namespace Cloudberry.Data
 {
 	public class Day : IComparable<Day>, IEquatable<Day>
 	{
-		public Day(int day, int? weight, string? text, IReadOnlyList<string> images) => (DayNumber, Weight, Text, Images) = (day, weight, text, images);
+		public Day(int day, int? weight, string? text, IReadOnlyList<string> images, IReadOnlyList<string> videos)
+			=> (DayNumber, Weight, Text, Images, Videos) = (day, weight, text, images, videos);
 
 		public int DayNumber { get; } // 0-based
 		public int? Weight { get; } // g
 		public string? Text { get; }
 
 		public IReadOnlyList<string> Images { get; }
+
+		public IReadOnlyList<string> Videos { get; }
 
 		public DateTime Date => BirthDate.AddDays(DayNumber);
 
@@ -90,6 +93,7 @@ namespace Cloudberry.Data
 				string? text = null;
 				int? weight = null;
 				var images = new List<string>();
+				var videos = new List<string>();
 
 				foreach (var filepath in Directory.EnumerateFiles(directoryPath))
 				{
@@ -114,10 +118,17 @@ namespace Cloudberry.Data
 								images.Add(imagePath);
 							}
 							break;
+						case ".mov":
+						case ".mp4":
+							{
+								string videoPath = Path.Combine("denik", directoryName, Path.GetFileName(filepath));
+								videos.Add(videoPath);
+							}
+							break;
 					}
 				}
 
-				return new Day(day, weight, text, images);
+				return new Day(day, weight, text, images, videos);
 			}
 			return null;
 		}

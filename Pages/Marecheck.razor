@@ -36,7 +36,14 @@
         <div class="my-4">
             @foreach (var imageFilepath in selectedDay.Images)
             {
-                <img src="@imageFilepath" alt="@System.IO.Path.GetFileName(imageFilepath)" class="img-thumbnail my-4" />
+                <img src="@imageFilepath" alt="@System.IO.Path.GetFileName(imageFilepath)" class="img-thumbnail my-2" />
+            }
+        </div>
+
+        <div class="my-4">
+            @foreach (var videoFilepath in selectedDay.Videos)
+            {
+                <video src="@videoFilepath" class="img-fluid"></video>
             }
         </div>
     }
@@ -141,7 +148,7 @@
         int today = Day.WhatDayNumberIsToday();
         if (!days.ContainsKey(today))
         {
-            days.Add(today, new Day(today, weight: null, text: null, images: new string[0]));
+            days.Add(today, new Day(today, weight: null, text: null, images: new string[0], videos: new string[0]));
         }
 
         var lineset = new LineDataset<Point>(days.Values.Where(day => day.Weight.HasValue).Select(day => new Point(day.DayNumber, day.Weight.GetValueOrDefault())))
