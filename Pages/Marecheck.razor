@@ -43,8 +43,9 @@
         <div class="my-4">
             @foreach (var videoFilepath in selectedDay.Videos)
             {
-                <video width="200" controls preload="auto">
+                <video width="200" controls autoplay muted>
                     <source src="@videoFilepath" type="video/mp4">
+                    <!-- https://stackoverflow.com/questions/27440596/html5-video-tag-not-showing-thumbnail-on-mobile-safari -->
                 </video>
             }
         </div>
