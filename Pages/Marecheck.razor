@@ -43,7 +43,7 @@
         <div class="my-4">
             @foreach (var videoFilepath in selectedDay.Videos)
             {
-                <video width="400" controls>
+                <video width="200" controls preload="auto">
                     <source src="@videoFilepath" type="video/mp4">
                 </video>
             }
