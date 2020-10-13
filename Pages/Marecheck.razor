@@ -29,7 +29,7 @@
 <div class="my-4">
     @if (diary.TryGetValue(selectedDayNumber, out var selectedDay))
     {
-        <textarea class="form-control" bind-value="@selectedDayText" bind-value:event="oninput" @onchange="OnSelectedDayTextChanged" style="height: 200px;"></textarea>
+        <textarea class="form-control" @bind="selectedDayText" style="height: 200px;"></textarea>
 
         <button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync" disabled="@(!isTextDirty)">Uložit změny</button>
 
@@ -89,7 +89,7 @@
                 Scales = new Scales
                 {
                     XAxes = new List<CartesianAxis>
-        {
+    {
                         new LinearCartesianAxis
                         {
                             ScaleLabel = new ScaleLabel
@@ -105,9 +105,9 @@
                                 SuggestedMin = 0,
                             }
                         }
-                    },
+                },
                     YAxes = new List<CartesianAxis>
-        {
+    {
                     new LinearCartesianAxis
                     {
                         ScaleLabel = new ScaleLabel
@@ -118,7 +118,7 @@
                         {
                         }
                     }
-                }
+            }
                 },
                 Hover = new Hover
                 {
@@ -150,6 +150,7 @@
 
     void OnSelectedDayChanged(ChangeEventArgs args)
     {
+        isTextDirty = false;
         if (int.TryParse(args.Value?.ToString(), out selectedDayNumber) && diary.TryGetValue(selectedDayNumber, out var selectedDay))
         {
             selectedDayText = selectedDay.Text;
