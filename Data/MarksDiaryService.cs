@@ -27,7 +27,7 @@ namespace Cloudberry.Data
 
 		public override int GetHashCode() => DayNumber.GetHashCode();
 
-		public static bool operator ==(Day left, Day right)
+		public static bool operator ==(Day? left, Day? right)
 		{
 			if (left is null)
 			{
@@ -37,15 +37,15 @@ namespace Cloudberry.Data
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(Day left, Day right) => !(left == right);
+		public static bool operator !=(Day? left, Day? right) => !(left == right);
 
-		public static bool operator <(Day left, Day right) => left is null ? right is object : left.CompareTo(right) < 0;
+		public static bool operator <(Day? left, Day? right) => left is null ? right is object : left.CompareTo(right) < 0;
 
-		public static bool operator <=(Day left, Day right) => left is null || left.CompareTo(right) <= 0;
+		public static bool operator <=(Day? left, Day? right) => left is null || left.CompareTo(right) <= 0;
 
-		public static bool operator >(Day left, Day right) => left is object && left.CompareTo(right) > 0;
+		public static bool operator >(Day? left, Day? right) => left is object && left.CompareTo(right) > 0;
 
-		public static bool operator >=(Day left, Day right) => left is null ? right is null : left.CompareTo(right) >= 0;
+		public static bool operator >=(Day? left, Day? right) => left is null ? right is null : left.CompareTo(right) >= 0;
 
 
 		public static DateTime BirthDate => new DateTime(2020, 8, 27, 10, 33, 0);
@@ -68,52 +68,65 @@ namespace Cloudberry.Data
 		{
 			foreach (var directorypath in Directory.EnumerateDirectories(SourceDirectoryPath))
 			{
-				string directoryName = Path.GetFileName(directorypath);
-				string[] tokens = directoryName.Split('_');
-				if (tokens.Length <= 1)
-					continue;
-				string dayString = tokens[1];
-				if (int.TryParse(dayString, out int day))
+				var day = await parseDayAsync(directorypath);
+				if (day is object)
 				{
-					string? text = null;
-					int? weight = null;
-					var images = new List<string>();
-
-					foreach (var filepath in Directory.EnumerateFiles(directorypath))
-					{
-						string extension = Path.GetExtension(filepath);
-						switch (extension.ToLowerInvariant())
-						{
-							case ".txt":
-								{
-									text = await File.ReadAllTextAsync(filepath);
-									if (int.TryParse(text[..text.IndexOf(' ')], out int value))
-									{
-										weight = value;
-									}
-								}
-								break;
-							case ".jpg":
-							case ".jpeg":
-							case ".png":
-							case ".gif":
-								{
-									string imagePath = Path.Combine("denik", directoryName, Path.GetFileName(filepath));
-									images.Add(imagePath);
-								}
-								break;
-						}
-					}
-
-					yield return new Day(day, weight, text, images);
+					yield return day;
 				}
 			}
 		}
 
-		public async Task UpdateMarkDayAsync(int dayNumber, string text)
+		private async Task<Day?> parseDayAsync(string directoryPath)
 		{
-			string filepath = Path.Combine(SourceDirectoryPath, $"den_{dayNumber}", $"{Day.CalculateWeek(dayNumber)}.txt");
+			string directoryName = Path.GetFileName(directoryPath);
+			string[] tokens = directoryName.Split('_');
+			if (tokens.Length <= 1)
+				return null;
+			string dayString = tokens[1];
+			if (int.TryParse(dayString, out int day))
+			{
+				string? text = null;
+				int? weight = null;
+				var images = new List<string>();
+
+				foreach (var filepath in Directory.EnumerateFiles(directoryPath))
+				{
+					string extension = Path.GetExtension(filepath);
+					switch (extension.ToLowerInvariant())
+					{
+						case ".txt":
+							{
+								text = await File.ReadAllTextAsync(filepath);
+								if (int.TryParse(text[..text.IndexOf(' ')], out int value))
+								{
+									weight = value;
+								}
+							}
+							break;
+						case ".jpg":
+						case ".jpeg":
+						case ".png":
+						case ".gif":
+							{
+								string imagePath = Path.Combine("denik", directoryName, Path.GetFileName(filepath));
+								images.Add(imagePath);
+							}
+							break;
+					}
+				}
+
+				return new Day(day, weight, text, images);
+			}
+			return null;
+		}
+
+		public async Task<Day> UpdateMarkDayAsync(int dayNumber, string text)
+		{
+			string directoryPath = Path.Combine(SourceDirectoryPath, $"den_{dayNumber}");
+			_ = Directory.CreateDirectory(directoryPath);
+			string filepath = Path.Combine(directoryPath, $"{Day.CalculateWeek(dayNumber)}.txt");
 			await File.WriteAllTextAsync(filepath, text);
+			return await parseDayAsync(directoryPath) ?? throw new InvalidOperationException();
 		}
 	}
 }
