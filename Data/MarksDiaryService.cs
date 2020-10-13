@@ -54,7 +54,8 @@ namespace Cloudberry.Data
 		{
 			foreach (var directorypath in Directory.EnumerateDirectories(@"/mnt/sidlo_data/data/marek/denik"))
 			{
-				string[] tokens = Path.GetFileNameWithoutExtension(directorypath).Split('_');
+				string directoryName = Path.GetFileName(directorypath);
+				string[] tokens = directoryName.Split('_');
 				if (tokens.Length <= 1)
 					continue;
 				string dayString = tokens[1];
@@ -83,7 +84,8 @@ namespace Cloudberry.Data
 							case ".png":
 							case ".gif":
 								{
-									images.Add(filepath);
+									string imagePath = Path.Combine("denik", directoryName, Path.GetFileName(filepath));
+									images.Add(imagePath);
 								}
 								break;
 						}

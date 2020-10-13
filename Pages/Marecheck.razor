@@ -36,7 +36,7 @@
         <div class="my-4">
             @foreach (var imageFilepath in selectedDay.Images)
             {
-                <a href="/denik/den_00/IMG_4313.JPG">go</a>
+                <img src="@imageFilepath" alt="@System.IO.Path.GetFileName(imageFilepath)" class="img-thumbnail" />
             }
         </div>
     }
