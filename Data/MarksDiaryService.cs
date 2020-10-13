@@ -52,7 +52,7 @@ namespace Cloudberry.Data
 
 		public static string CalculateWeek(int dayNumber)
 		{
-			int baseDay = 36 * 7 + 4;
+			int baseDay = 30 * 7 + 4;
 			int currentDay = baseDay + dayNumber;
 			int currentWeek = currentDay / 7;
 			int weekDay = currentDay % 7;

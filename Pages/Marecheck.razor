@@ -29,9 +29,9 @@
 <div class="my-4">
     @if (diary.TryGetValue(selectedDayNumber, out var selectedDay))
     {
-        <textarea class="form-control" value="@selectedDayText" @onchange="OnSelectedDayTextChanged" style="height: 200px;"></textarea>
+        <textarea class="form-control" @bind="@selectedDayText" style="height: 200px;"></textarea>
 
-        <button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync" disabled="@(!isTextDirty)">Uložit změny</button>
+        <button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync">Uložit změny</button>
 
         <div class="my-4">
             @foreach (var imageFilepath in selectedDay.Images)
