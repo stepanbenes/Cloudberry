@@ -29,7 +29,6 @@ namespace Cloudberry
 		{
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
-			services.AddSingleton<WeatherForecastService>();
 			services.AddSingleton<ICpuTemperatureService, RealCpuTemperatureService>();
 			services.AddSingleton<MarksDiaryService>();
 		}
