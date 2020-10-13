@@ -9,15 +9,15 @@ namespace Cloudberry.Data
 {
 	public class Day : IComparable<Day>, IEquatable<Day>
 	{
-		public Day(int day, int? weight, IReadOnlyList<string> images) => (DayNumber, Weight, Images) = (day, weight, images);
+		public Day(int day, int? weight, string? text, IReadOnlyList<string> images) => (DayNumber, Weight, Text, Images) = (day, weight, text, images);
 
 		public int DayNumber { get; } // 0-based
 		public int? Weight { get; } // g
-		public string? Note { get; set; }
+		public string? Text { get; }
 
 		public IReadOnlyList<string> Images { get; }
 
-		public DateTime Date => new DateTime(2020, 8, 27, 10, 33, 0).AddDays(DayNumber);
+		public DateTime Date => BirthDate.AddDays(DayNumber);
 
 		public int CompareTo(Day? other) => this.DayNumber.CompareTo(other?.DayNumber ?? -1);
 
@@ -46,13 +46,27 @@ namespace Cloudberry.Data
 		public static bool operator >(Day left, Day right) => left is object && left.CompareTo(right) > 0;
 
 		public static bool operator >=(Day left, Day right) => left is null ? right is null : left.CompareTo(right) >= 0;
+
+
+		public static DateTime BirthDate => new DateTime(2020, 8, 27, 10, 33, 0);
+
+		public static string CalculateWeek(int dayNumber)
+		{
+			int baseDay = 36 * 7 + 4;
+			int currentDay = baseDay + dayNumber;
+			int currentWeek = currentDay / 7;
+			int weekDay = currentDay % 7;
+			return $"{currentWeek}+{weekDay}";
+		}
 	}
 
 	public class MarksDiaryService
 	{
+		public static readonly string SourceDirectoryPath = @"/mnt/sidlo_data/data/marek/denik";
+
 		public async IAsyncEnumerable<Day> GetMarkDaysAsync()
 		{
-			foreach (var directorypath in Directory.EnumerateDirectories(@"/mnt/sidlo_data/data/marek/denik"))
+			foreach (var directorypath in Directory.EnumerateDirectories(SourceDirectoryPath))
 			{
 				string directoryName = Path.GetFileName(directorypath);
 				string[] tokens = directoryName.Split('_');
@@ -91,9 +105,15 @@ namespace Cloudberry.Data
 						}
 					}
 
-					yield return new Day(day, weight, images) { Note = text };
+					yield return new Day(day, weight, text, images);
 				}
 			}
+		}
+
+		public async Task UpdateMarkDayAsync(int dayNumber, string text)
+		{
+			string filepath = Path.Combine(SourceDirectoryPath, $"den_{dayNumber}", $"{Day.CalculateWeek(dayNumber)}.txt");
+			await File.WriteAllTextAsync(filepath, text);
 		}
 	}
 }

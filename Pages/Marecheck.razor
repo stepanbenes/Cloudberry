@@ -17,11 +17,11 @@
 <Chart TConfig="LineConfig" Config="config" @ref="lineChart"></Chart>
 
 <div class="my-4">
-    <select class="form-control" @bind="selectedDayNumber">
+    <select class="form-control" @bind="selectedDayNumber" @onselectionchange="OnSelectedDayChanged">
         <option value="-1">[Vyber den]</option>
         @foreach (var day in diary.Values)
         {
-            <option value="@day.DayNumber">Den @(day.DayNumber) (@(day.Date.ToShortDateString()) @(day.Date.DayOfWeek))</option>
+            <option value="@day.DayNumber">Den @(day.DayNumber) | @(Day.CalculateWeek(day.DayNumber)) | @(day.Date.ToShortDateString()) @(day.Date.DayOfWeek)</option>
         }
     </select>
 </div>
@@ -29,14 +29,14 @@
 <div class="my-4">
     @if (diary.TryGetValue(selectedDayNumber, out var selectedDay))
     {
-        <textarea class="form-control" @bind="@selectedDay.Note" style="height: 200px;"></textarea>
+        <textarea class="form-control" @bind="@selectedDayText" style="height: 200px;"></textarea>
 
-        @*<button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync">Uložit změny</button>*@
+        <button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync" disabled="@(selectedDay.Text != selectedDayText)">Uložit změny</button>
 
         <div class="my-4">
             @foreach (var imageFilepath in selectedDay.Images)
             {
-                <img src="@imageFilepath" alt="@System.IO.Path.GetFileName(imageFilepath)" class="img-thumbnail" />
+                <img src="@imageFilepath" alt="@System.IO.Path.GetFileName(imageFilepath)" class="img-thumbnail my-4" />
             }
         </div>
     }
@@ -51,6 +51,7 @@
 
     private SortedDictionary<int, Day> diary = new SortedDictionary<int, Day>();
     private int selectedDayNumber = -1;
+    private string? selectedDayText = null;
 
     public Marecheck()
     {
@@ -83,7 +84,7 @@
                 Scales = new Scales
                 {
                     XAxes = new List<CartesianAxis>
-            {
+        {
                         new LinearCartesianAxis
                         {
                             ScaleLabel = new ScaleLabel
@@ -101,7 +102,7 @@
                         }
                     },
                     YAxes = new List<CartesianAxis>
-            {
+        {
                     new LinearCartesianAxis
                     {
                         ScaleLabel = new ScaleLabel
@@ -142,9 +143,24 @@
         this.diary = days;
     }
 
+    void OnSelectedDayChanged()
+    {
+        if (diary.TryGetValue(selectedDayNumber, out var selectedDay))
+        {
+            selectedDayText = selectedDay.Text;
+        }
+        else
+        {
+            selectedDayText = null;
+        }
+    }
+
     async Task SaveChangesAsync()
     {
-
+        if (selectedDayNumber >= 0 && selectedDayText is object)
+        {
+            await MarkWeightService.UpdateMarkDayAsync(selectedDayNumber, selectedDayText);
+        }
     }
 
     //void OnLineClick(JObject mouseEvent, JArray activeElements)
