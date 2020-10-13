@@ -58,6 +58,8 @@ namespace Cloudberry.Data
 			int weekDay = currentDay % 7;
 			return $"{currentWeek}+{weekDay}";
 		}
+
+		public static int WhatDayNumberIsToday() => (DateTime.Now.Date - BirthDate.Date).Days;
 	}
 
 	public class MarksDiaryService

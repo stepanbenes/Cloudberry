@@ -43,8 +43,8 @@
 </div>
 
 @*<div class="my-4">
-    <button class="btn btn-secondary btn-block mt-4" @onclick="AddTodayAsync" >Přidat dnešní den</button>
-</div>*@
+        <button class="btn btn-secondary btn-block mt-4" @onclick="AddTodayAsync" >Přidat dnešní den</button>
+    </div>*@
 
 
 
@@ -89,7 +89,7 @@
                 Scales = new Scales
                 {
                     XAxes = new List<CartesianAxis>
-    {
+{
                         new LinearCartesianAxis
                         {
                             ScaleLabel = new ScaleLabel
@@ -107,7 +107,7 @@
                         }
                 },
                     YAxes = new List<CartesianAxis>
-    {
+{
                     new LinearCartesianAxis
                     {
                         ScaleLabel = new ScaleLabel
@@ -136,6 +136,12 @@
         await foreach (var day in MarkWeightService.GetMarkDaysAsync())
         {
             days.Add(day.DayNumber, day);
+        }
+
+        int today = Day.WhatDayNumberIsToday();
+        if (!days.ContainsKey(today))
+        {
+            days.Add(today, new Day(today, weight: null, text: null, images: new string[0]));
         }
 
         var lineset = new LineDataset<Point>(days.Values.Where(day => day.Weight.HasValue).Select(day => new Point(day.DayNumber, day.Weight.GetValueOrDefault())))
