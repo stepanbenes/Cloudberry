@@ -29,9 +29,9 @@
 <div class="my-4">
     @if (diary.TryGetValue(selectedDayNumber, out var selectedDay))
     {
-        <textarea class="form-control" @bind="@selectedDayText" style="height: 200px;"></textarea>
+        <textarea class="form-control" value="@selectedDayText" @onchange="OnSelectedDayTextChanged" style="height: 200px;"></textarea>
 
-        <button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync" disabled="@(selectedDay.Text == selectedDayText)">Uložit změny</button>
+        <button class="btn btn-primary btn-block mt-4" @onclick="SaveChangesAsync" disabled="@(!isTextDirty)">Uložit změny</button>
 
         <div class="my-4">
             @foreach (var imageFilepath in selectedDay.Images)
@@ -56,6 +56,7 @@
     private SortedDictionary<int, Day> diary = new SortedDictionary<int, Day>();
     private int selectedDayNumber = -1;
     private string? selectedDayText = null;
+    private bool isTextDirty = false;
 
     public Marecheck()
     {
@@ -159,12 +160,18 @@
         }
     }
 
+    void OnSelectedDayTextChanged(ChangeEventArgs args)
+    {
+        isTextDirty = true;
+    }
+
     async Task SaveChangesAsync()
     {
         if (selectedDayNumber >= 0 && selectedDayText is object)
         {
             var updatedDay = await MarkWeightService.UpdateMarkDayAsync(selectedDayNumber, selectedDayText);
             diary[selectedDayNumber] = updatedDay;
+            isTextDirty = false;
         }
     }
 
