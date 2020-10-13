@@ -17,7 +17,7 @@
 <Chart TConfig="LineConfig" Config="config" @ref="lineChart"></Chart>
 
 <div class="my-4">
-    <select class="form-control" @bind="selectedDayNumber" @onselectionchange="OnSelectedDayChanged">
+    <select class="form-control" value="@selectedDayNumber" @onchange="OnSelectedDayChanged">
         <option value="-1">[Vyber den]</option>
         @foreach (var day in diary.Values)
         {
@@ -143,9 +143,9 @@
         this.diary = days;
     }
 
-    void OnSelectedDayChanged()
+    void OnSelectedDayChanged(ChangeEventArgs args)
     {
-        if (diary.TryGetValue(selectedDayNumber, out var selectedDay))
+        if (int.TryParse(args.Value?.ToString(), out selectedDayNumber) && diary.TryGetValue(selectedDayNumber, out var selectedDay))
         {
             selectedDayText = selectedDay.Text;
         }
