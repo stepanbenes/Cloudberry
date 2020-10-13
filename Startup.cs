@@ -8,6 +8,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Cloudberry.Data;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using Microsoft.AspNetCore.Http;
 
 namespace Cloudberry
 {
@@ -52,6 +55,11 @@ namespace Cloudberry
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
+			app.UseStaticFiles(new StaticFileOptions()
+			{
+				FileProvider = new PhysicalFileProvider(@"/mnt/sidlo_data/data/marek/denik"),
+				RequestPath = new PathString("/denik")
+			});
 
 			app.UseRouting();
 
