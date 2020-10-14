@@ -1,4 +1,5 @@
 @page "/marecheck"
+@page "/marecheck/{DayNumber:int}"
 
 @using ChartJs.Blazor.Charts
 @using ChartJs.Blazor.ChartJS.Common
@@ -13,6 +14,7 @@
 @using Newtonsoft.Json.Linq
 
 @inject MarksDiaryService MarkWeightService
+@inject NavigationManager NavigationManager
 
 <Chart TConfig="LineConfig" Config="config" @ref="lineChart"></Chart>
 
@@ -62,6 +64,9 @@
 
 @code {
 
+    [Parameter]
+    public int? DayNumber { get; set; }
+
     private LineConfig config;
     private Chart<LineConfig>? lineChart;
 
@@ -101,7 +106,7 @@
                 Scales = new Scales
                 {
                     XAxes = new List<CartesianAxis>
-{
+                    {
                         new LinearCartesianAxis
                         {
                             ScaleLabel = new ScaleLabel
@@ -119,18 +124,18 @@
                         }
                 },
                     YAxes = new List<CartesianAxis>
-{
-                    new LinearCartesianAxis
                     {
-                        ScaleLabel = new ScaleLabel
+                    new LinearCartesianAxis
                         {
-                            LabelString = "Váha [g]"
-                        },
-                        Ticks = new LinearCartesianTicks
-                        {
+                            ScaleLabel = new ScaleLabel
+                            {
+                                LabelString = "Váha [g]"
+                            },
+                            Ticks = new LinearCartesianTicks
+                            {
+                            }
                         }
                     }
-            }
                 },
                 Hover = new Hover
                 {
@@ -164,30 +169,57 @@
 
         config.Data.Datasets.Add(lineset);
         this.diary = days;
+
+        selectedDayNumber = DayNumber ?? -1;
+        onSelectedDayNumberChanged();
     }
 
     void OnSelectedDayChanged(ChangeEventArgs args)
     {
+        if (int.TryParse(args.Value?.ToString(), out selectedDayNumber))
+        {
+            onSelectedDayNumberChanged();
+        }
+        else
+        {
+            selectedDayNumber = -1;
+            onSelectedDayNumberChanged();
+        }
+        updateRoute();
+    }
+
+    private void onSelectedDayNumberChanged()
+    {
         isTextDirty = false;
-        if (int.TryParse(args.Value?.ToString(), out selectedDayNumber) && diary.TryGetValue(selectedDayNumber, out var selectedDay))
+        if (diary.TryGetValue(selectedDayNumber, out var selectedDay))
         {
             selectedDayText = selectedDay.Text;
+            DayNumber = selectedDayNumber;
         }
         else
         {
             selectedDayText = null;
+            DayNumber = null;
         }
     }
 
-    //void OnSelectedDayTextChanged(ChangeEventArgs args)
-    //{
-    //    isTextDirty = true;
-    //}
+    private void updateRoute()
+    {
+        if (DayNumber is object)
+        {
+            NavigationManager.NavigateTo($"/marecheck/{DayNumber}");
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"/marecheck");
+        }
+    }
 
     public void OnSelectedDayTextInput()
     {
         isTextDirty = true;
     }
+
     async Task SaveChangesAsync()
     {
         if (selectedDayNumber >= 0 && selectedDayText is object)
