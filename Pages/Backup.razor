@@ -1,0 +1,14 @@
+﻿@page "/backup"
+@page "/backup/{*directoryPath}"
+
+<h3>Backup</h3>
+
+@code {
+    [Parameter]
+    public string? DirectoryPath { get; set; }
+
+    protected override void OnInitialized()
+    {
+
+    }
+}
