@@ -1,14 +1,54 @@
 ﻿@page "/backup"
 @page "/backup/{*directoryPath}"
 
-<h3>Backup</h3>
+@using Cloudberry.Data
+@using System.IO
+
+@inject DataBackupService DataBackupService
+
+<b>Data backup</b>
+@foreach (var (pathSegment, combinedPath) in DataBackupService.DirectorySplit(DirectoryPath))
+{
+    <b> / </b>
+    <a href="@("/backup" + combinedPath)">@pathSegment</a>
+}
+
+@foreach (var entry in directoryContent)
+{
+    @if (entry is DirectoryEntry { Name: var directoryName })
+    {
+        <p>
+            <a href="/backup/@(DirectoryPath)/@(directoryName)">@directoryName</a>
+        </p>
+    }
+    else if (entry is FileEntry { Name: var fileName })
+    {
+        <p>@fileName</p>
+    }
+}
 
 @code {
     [Parameter]
-    public string? DirectoryPath { get; set; }
+    public string? DirectoryPath { get; init; }
 
-    protected override void OnInitialized()
+    private IReadOnlyList<FileSystemEntry> directoryContent { get; set; } = Array.Empty<FileSystemEntry>();
+
+    protected override void OnParametersSet()
     {
-
+        if (DirectoryPath is { })
+        {
+            try
+            {
+                directoryContent = DataBackupService.GetFileSystemEntries(DirectoryPath).ToList();
+            }
+            catch (System.IO.DirectoryNotFoundException)
+            {
+                // TODO: redirect to not-found page
+            }
+        }
+        else
+        {
+            directoryContent = Array.Empty<FileSystemEntry>();
+        }
     }
 }
