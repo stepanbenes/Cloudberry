@@ -2,30 +2,54 @@
 @page "/backup/{*directoryPath}"
 
 @using Cloudberry.Data
-@using System.IO
 
 @inject DataBackupService DataBackupService
 
-<b>Data backup</b>
-@foreach (var (pathSegment, combinedPath) in DataBackupService.DirectorySplit(DirectoryPath))
-{
-    <b> / </b>
-    <a href="@("/backup" + combinedPath)">@pathSegment</a>
-}
 
-@foreach (var entry in directoryContent)
-{
-    @if (entry is DirectoryEntry { Name: var directoryName })
+<div>
+    <a href="/backup"><b>Data backup</b></a>
+    @foreach (var (pathSegment, combinedPath) in DataBackupService.DirectorySplit(DirectoryPath))
     {
-        <p>
-            <a href="/backup/@(DirectoryPath)/@(directoryName)">@directoryName</a>
-        </p>
+        <b> / </b>
+        <a href="@("/backup" + combinedPath)">@pathSegment</a>
     }
-    else if (entry is FileEntry { Name: var fileName })
-    {
-        <p>@fileName</p>
-    }
-}
+</div>
+
+<div class="mt-4">
+    <table class="table">
+        @*<thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Temp. (C)</th>
+                    <th>Temp. (F)</th>
+                    <th>Summary</th>
+                </tr>
+            </thead>*@
+        <tbody>
+            @foreach (var entry in directoryContent)
+            {
+                <tr>
+                    <td>
+                        @if (entry is DirectoryEntry { Name: var directoryName })
+                        {
+                            <a href="/backup/@(DirectoryPath)/@(directoryName)">@directoryName</a>
+                        }
+                        else if (entry is FileEntry { Name: var fileName })
+                        {
+                            @(fileName)
+                        }
+                    </td>
+                    <td>
+                        @if (entry is FileEntry { Size: var size })
+                        {
+                            <span class="text-muted">@(size) B</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 @code {
     [Parameter]
@@ -35,20 +59,13 @@
 
     protected override void OnParametersSet()
     {
-        if (DirectoryPath is { })
+        try
         {
-            try
-            {
-                directoryContent = DataBackupService.GetFileSystemEntries(DirectoryPath).ToList();
-            }
-            catch (System.IO.DirectoryNotFoundException)
-            {
-                // TODO: redirect to not-found page
-            }
+            directoryContent = DataBackupService.GetFileSystemEntries(localPath: DirectoryPath ?? "").ToList();
         }
-        else
+        catch (System.IO.DirectoryNotFoundException)
         {
-            directoryContent = Array.Empty<FileSystemEntry>();
+            // TODO: redirect to not-found page
         }
     }
 }

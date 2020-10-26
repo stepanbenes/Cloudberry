@@ -16,7 +16,7 @@ namespace Cloudberry.Data
 
 	public class DataBackupService
 	{
-		public static readonly string BaseDirectoryPath = @"C:\temp";
+		public static readonly string BaseDirectoryPath = @"/mnt/sidlo_backup/data";
 
 		public IEnumerable<FileSystemEntry> GetFileSystemEntries(string localPath)
 		{
