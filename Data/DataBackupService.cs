@@ -18,9 +18,9 @@ namespace Cloudberry.Data
 	{
 		public static readonly string BaseDirectoryPath = @"/mnt/sidlo_data/data";
 
-		public IEnumerable<FileSystemEntry> GetFileSystemEntries(string localPath)
+		public IEnumerable<FileSystemEntry> GetFileSystemEntries(string relativePath)
 		{
-			string directoryPath = Path.Combine(BaseDirectoryPath, localPath);
+			string directoryPath = Path.Combine(BaseDirectoryPath, relativePath);
 
 			foreach (string directory in Directory.EnumerateDirectories(directoryPath))
 			{
