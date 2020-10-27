@@ -16,11 +16,16 @@ namespace Cloudberry.Data
 
 	public class DataBackupService
 	{
-		public static readonly string BaseDirectoryPath = @"/mnt/sidlo_data/data";
+		public static readonly string DataBaseDirectoryPath = @"/mnt/sidlo_data/data";
+		public static readonly string BackupBaseDirectoryPath = @"/mnt/sidlo_backup/data";
+		
+		private readonly RdiffBackupRunner rdiffBackupRunner;
+
+		public DataBackupService(RdiffBackupRunner rdiffBackupRunner) => this.rdiffBackupRunner = rdiffBackupRunner;
 
 		public IEnumerable<FileSystemEntry> GetFileSystemEntries(string relativePath)
 		{
-			string directoryPath = Path.Combine(BaseDirectoryPath, relativePath);
+			string directoryPath = Path.Combine(DataBaseDirectoryPath, relativePath);
 
 			foreach (string directory in Directory.EnumerateDirectories(directoryPath))
 			{
@@ -33,6 +38,8 @@ namespace Cloudberry.Data
 				yield return new FileEntry(Path.GetFileName(file), Size: fileInfo.Length);
 			}
 		}
+
+		public Task<IReadOnlyList<DateTime>> GetBackupDateTimes(string relativePath) => rdiffBackupRunner.ListIncrementSizesAsync(Path.Combine(BackupBaseDirectoryPath, relativePath));
 
 		public IEnumerable<(string pathSegment, string combinedPath)> DirectorySplit(string? path)
 		{

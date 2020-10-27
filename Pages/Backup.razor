@@ -57,11 +57,13 @@
 
     private IReadOnlyList<FileSystemEntry> directoryContent { get; set; } = Array.Empty<FileSystemEntry>();
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         try
         {
             directoryContent = DataBackupService.GetFileSystemEntries(relativePath: DirectoryPath ?? "").ToList();
+
+            var test = await DataBackupService.GetBackupDateTimes(relativePath: DirectoryPath ?? "");
         }
         catch (System.IO.DirectoryNotFoundException)
         {
