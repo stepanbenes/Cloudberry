@@ -61,7 +61,7 @@
     {
         try
         {
-            directoryContent = DataBackupService.GetFileSystemEntries(localPath: DirectoryPath ?? "").ToList();
+            directoryContent = DataBackupService.GetFileSystemEntries(relativePath: DirectoryPath ?? "").ToList();
         }
         catch (System.IO.DirectoryNotFoundException)
         {
