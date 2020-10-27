@@ -51,11 +51,21 @@
     </table>
 </div>
 
+<div>
+    <select>
+        @foreach (var dateTime in backupDateTimes)
+        {
+            <option value="@dateTime">@dateTime</option>
+        }
+    </select>
+</div>
+
 @code {
     [Parameter]
     public string? DirectoryPath { get; init; }
 
     private IReadOnlyList<FileSystemEntry> directoryContent { get; set; } = Array.Empty<FileSystemEntry>();
+    private IReadOnlyList<DateTime> backupDateTimes { get; set; } = Array.Empty<DateTime>();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -63,7 +73,7 @@
         {
             directoryContent = DataBackupService.GetFileSystemEntries(relativePath: DirectoryPath ?? "").ToList();
 
-            var test = await DataBackupService.GetBackupDateTimes(relativePath: DirectoryPath ?? "");
+            backupDateTimes = await DataBackupService.GetBackupDateTimes(relativePath: DirectoryPath ?? "");
         }
         catch (System.IO.DirectoryNotFoundException)
         {
