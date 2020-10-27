@@ -32,7 +32,7 @@
                     <td>
                         @if (entry is DirectoryEntry { Name: var directoryName })
                         {
-                            <a href="/backup/@(DirectoryPath)/@(directoryName)">@directoryName</a>
+                            <a href="/backup@(DirectoryPath is { Length: > 0 } ? "/" + DirectoryPath : "")/@(directoryName)">@directoryName</a>
                         }
                         else if (entry is FileEntry { Name: var fileName })
                         {
