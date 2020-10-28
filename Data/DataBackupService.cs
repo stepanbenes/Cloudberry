@@ -20,7 +20,7 @@ namespace Cloudberry.Data
 
 	public class DataBackupService
 	{
-		public static readonly string DataBaseDirectoryPath = @"/mnt/sidlo_data/data";
+		//public static readonly string DataBaseDirectoryPath = @"/mnt/sidlo_data/data";
 		public static readonly string BackupBaseDirectoryPath = @"/mnt/sidlo_backup/data";
 
 		private readonly ILogger<DataBackupService> logger;
@@ -36,7 +36,7 @@ namespace Cloudberry.Data
 
 		public IEnumerable<FileSystemEntry> GetFileSystemEntries(string relativePath)
 		{
-			string directoryPath = Path.Combine(DataBaseDirectoryPath, relativePath);
+			string directoryPath = Path.Combine(BackupBaseDirectoryPath, relativePath);
 
 			foreach (string directory in Directory.EnumerateDirectories(directoryPath))
 			{
