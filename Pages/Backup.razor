@@ -5,8 +5,6 @@
 
 @inject DataBackupService DataBackupService
 
-
-
 <div>
     <a href="/backup"><b>data</b></a>
     @foreach (var (pathSegment, combinedPath) in DataBackupService.DirectorySplit(DirectoryPath))
@@ -52,23 +50,25 @@
     </table>
 </div>
 
-<div>
-    <select>
-        @foreach (var dateTime in backupDateTimes)
+<div class="form-group">
+    <label class="col-form-label">Versions</label>
+    <select class="form-control">
+        @for (int i = 0; i < backupIncrements.Count; i++)
         {
-            <option value="@dateTime">@dateTime</option>
+            <option value="@i">@(backupIncrements[i].DateTime) | @(backupIncrements[i].IncrementSize) Bytes</option>
         }
     </select>
+
+    <button class="btn btn-primary float-right" @onclick="OnRunBackupClick">Backup now!</button>
 </div>
 
-<button class="float-right" onclick="@OnRunBackupClick()">Backup now!</button>
 
 @code {
     [Parameter]
     public string? DirectoryPath { get; init; }
 
     private IReadOnlyList<FileSystemEntry> directoryContent { get; set; } = Array.Empty<FileSystemEntry>();
-    private IReadOnlyList<DateTime> backupDateTimes { get; set; } = Array.Empty<DateTime>();
+    private IReadOnlyList<BackupIncrementInfo> backupIncrements { get; set; } = Array.Empty<BackupIncrementInfo>();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -77,7 +77,7 @@
             // TODO: make async and load lazily
             directoryContent = DataBackupService.GetFileSystemEntries(relativePath: DirectoryPath ?? "").ToList();
 
-            backupDateTimes = await DataBackupService.GetBackupDateTimes(relativePath: DirectoryPath ?? "");
+            backupIncrements = await DataBackupService.GetBackupIncrementsAsync(relativePath: DirectoryPath ?? "");
         }
         catch (System.IO.DirectoryNotFoundException)
         {

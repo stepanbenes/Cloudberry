@@ -16,6 +16,8 @@ namespace Cloudberry.Data
 
 	record DirectoryEntry(string Name) : FileSystemEntry(Name);
 
+	public record BackupIncrementInfo(DateTime DateTime, long? IncrementSize, long? CummulativeSize);
+
 	public class DataBackupService
 	{
 		public static readonly string DataBaseDirectoryPath = @"/mnt/sidlo_data/data";
@@ -48,7 +50,7 @@ namespace Cloudberry.Data
 			}
 		}
 
-		public async Task<IReadOnlyList<DateTime>> GetBackupDateTimes(string relativePath)
+		public async Task<IReadOnlyList<BackupIncrementInfo>> GetBackupIncrementsAsync(string relativePath)
 		{
 			string backupDirectoryPath = Path.Combine(BackupBaseDirectoryPath, relativePath);
 
@@ -59,14 +61,19 @@ namespace Cloudberry.Data
 			string dateTimeFormat = "ddd MMM dd HH:mm:ss yyyy";
 
 			using StringReader stringReader = new(output);
-			List<DateTime> result = new();
+			List<BackupIncrementInfo> result = new();
 			int lineIndex = 0;
 			while (await stringReader.ReadLineAsync() is string line)
 			{
 				if (lineIndex >= 2) // skip first two lines
 				{
-					DateTime dateTime = DateTime.ParseExact(line.Substring(0, dateTimeFormat.Length), dateTimeFormat, CultureInfo.InvariantCulture);
-					result.Add(dateTime);
+					DateTime dateTime = DateTime.ParseExact(line[..dateTimeFormat.Length], dateTimeFormat, CultureInfo.InvariantCulture);
+					string[] tokens = line[dateTimeFormat.Length..].Split(new[] { ' ', '\t' });
+
+					result.Add(new(dateTime,
+						IncrementSize: parseLongNumber(tokens[0]) * parseByteUnitsFactor(tokens[1]),
+						CummulativeSize: parseLongNumber(tokens[2]) * parseByteUnitsFactor(tokens[3])
+						));
 				}
 				lineIndex += 1;
 			}
@@ -128,5 +135,17 @@ namespace Cloudberry.Data
 
 			return tsc.Task;
 		}
+
+		private static long? parseLongNumber(string text) => long.TryParse(text, out var value) ? value : null;
+
+		private static long? parseByteUnitsFactor(string text) => text switch
+		{
+			"bytes" => 1L,
+			"KB" => 1024L,
+			"MB" => 1024L * 1024,
+			"GB" => 1024L * 1024 * 1024,
+			"TB" => 1024L * 1024 * 1024 * 1024,
+			_ => null
+		};
 	}
 }
