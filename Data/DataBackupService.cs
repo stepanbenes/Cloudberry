@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
-using Microsoft.AspNetCore.Mvc.Routing;
 using System.Text;
+using Microsoft.Extensions.Logging;
+using System.Globalization;
+using System.Diagnostics;
 
 namespace Cloudberry.Data
 {
@@ -18,10 +20,17 @@ namespace Cloudberry.Data
 	{
 		public static readonly string DataBaseDirectoryPath = @"/mnt/sidlo_data/data";
 		public static readonly string BackupBaseDirectoryPath = @"/mnt/sidlo_backup/data";
-		
-		private readonly RdiffBackupRunner rdiffBackupRunner;
 
-		public DataBackupService(RdiffBackupRunner rdiffBackupRunner) => this.rdiffBackupRunner = rdiffBackupRunner;
+		private readonly ILogger<DataBackupService> logger;
+
+		public DataBackupService(ILoggerFactory loggerFactory) => this.logger = loggerFactory.CreateLogger<DataBackupService>();
+
+		public async Task RunBackupNowAsync()
+		{
+			var output = await runCommandAsync("/home/pi/projects/memorykeeper/backup.sh");
+
+			logger.LogInformation(output);
+		}
 
 		public IEnumerable<FileSystemEntry> GetFileSystemEntries(string relativePath)
 		{
@@ -39,7 +48,30 @@ namespace Cloudberry.Data
 			}
 		}
 
-		public Task<IReadOnlyList<DateTime>> GetBackupDateTimes(string relativePath) => rdiffBackupRunner.ListIncrementSizesAsync(Path.Combine(BackupBaseDirectoryPath, relativePath));
+		public async Task<IReadOnlyList<DateTime>> GetBackupDateTimes(string relativePath)
+		{
+			string backupDirectoryPath = Path.Combine(BackupBaseDirectoryPath, relativePath);
+
+			var output = await runCommandAsync("rdiff-backup", $"--list-increment-sizes --no-acls {backupDirectoryPath}");
+
+			logger.LogInformation(output);
+
+			string dateTimeFormat = "ddd MMM dd HH:mm:ss yyyy";
+
+			using StringReader stringReader = new(output);
+			List<DateTime> result = new();
+			int lineIndex = 0;
+			while (await stringReader.ReadLineAsync() is string line)
+			{
+				if (lineIndex >= 2) // skip first two lines
+				{
+					DateTime dateTime = DateTime.ParseExact(line.Substring(0, dateTimeFormat.Length), dateTimeFormat, CultureInfo.InvariantCulture);
+					result.Add(dateTime);
+				}
+				lineIndex += 1;
+			}
+			return result;
+		}
 
 		public IEnumerable<(string pathSegment, string combinedPath)> DirectorySplit(string? path)
 		{
@@ -59,6 +91,42 @@ namespace Cloudberry.Data
 			//	yield return (pathSegment: dir.Name, combinedPath: dir.FullName);
 			//	dir = dir.Parent;
 			//}
+		}
+
+		private static Task<string> runCommandAsync(string command, string args = "")
+		{
+			var process = new Process
+			{
+				StartInfo = new ProcessStartInfo
+				{
+					FileName = command,
+					Arguments = args,
+					RedirectStandardOutput = true,
+					RedirectStandardError = true,
+					UseShellExecute = false,
+					CreateNoWindow = true,
+				},
+				EnableRaisingEvents = true
+			};
+
+			var tsc = new TaskCompletionSource<string>();
+
+			process.Exited += async (s, e) =>
+			{
+				if (process.ExitCode == 0)
+				{
+					tsc.SetResult(await process.StandardOutput.ReadToEndAsync());
+				}
+				else
+				{
+					tsc.SetException(new InvalidOperationException(await process.StandardError.ReadToEndAsync()));
+				}
+			};
+
+
+			process.Start();
+
+			return tsc.Task;
 		}
 	}
 }

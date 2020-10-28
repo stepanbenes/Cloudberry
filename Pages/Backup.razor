@@ -6,6 +6,7 @@
 @inject DataBackupService DataBackupService
 
 
+
 <div>
     <a href="/backup"><b>data</b></a>
     @foreach (var (pathSegment, combinedPath) in DataBackupService.DirectorySplit(DirectoryPath))
@@ -60,6 +61,8 @@
     </select>
 </div>
 
+<button class="float-right" onclick="@OnRunBackupClick()">Backup now!</button>
+
 @code {
     [Parameter]
     public string? DirectoryPath { get; init; }
@@ -80,5 +83,10 @@
         {
             // TODO: redirect to not-found page
         }
+    }
+
+    public async Task OnRunBackupClick()
+    {
+        await DataBackupService.RunBackupNowAsync();
     }
 }

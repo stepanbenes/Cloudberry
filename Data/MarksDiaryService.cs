@@ -81,7 +81,7 @@ namespace Cloudberry.Data
 			}
 		}
 
-		private async Task<Day?> parseDayAsync(string directoryPath)
+		private static async Task<Day?> parseDayAsync(string directoryPath)
 		{
 			string directoryName = Path.GetFileName(directoryPath);
 			string[] tokens = directoryName.Split('_');

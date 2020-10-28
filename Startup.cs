@@ -32,7 +32,6 @@ namespace Cloudberry
 			services.AddSingleton<ICpuTemperatureService, RealCpuTemperatureService>();
 			services.AddSingleton<MarksDiaryService>();
 			services.AddSingleton<DataBackupService>();
-			services.AddSingleton<RdiffBackupRunner>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
