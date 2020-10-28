@@ -12,11 +12,13 @@ namespace Cloudberry.Data
 {
 	public abstract record FileSystemEntry(string Name);
 
-	record FileEntry(string Name, long Size) : FileSystemEntry(Name);
+	record FileEntry(string Name, DataSize Size) : FileSystemEntry(Name);
 
 	record DirectoryEntry(string Name) : FileSystemEntry(Name);
 
-	public record BackupIncrementInfo(DateTime DateTime, long? IncrementSize, long? CummulativeSize);
+	public record DataSize(double Value, string Units);
+
+	public record BackupIncrementInfo(DateTime DateTime, DataSize IncrementSize, DataSize CummulativeSize);
 
 	public class DataBackupService
 	{
@@ -46,7 +48,7 @@ namespace Cloudberry.Data
 			foreach (string file in Directory.EnumerateFiles(directoryPath))
 			{
 				var fileInfo = new FileInfo(file);
-				yield return new FileEntry(Path.GetFileName(file), Size: fileInfo.Length);
+				yield return new FileEntry(Path.GetFileName(file), Size: new(fileInfo.Length, "bytes"));
 			}
 		}
 
@@ -71,8 +73,8 @@ namespace Cloudberry.Data
 					string[] tokens = line[dateTimeFormat.Length..].Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
 					result.Add(new(dateTime,
-						IncrementSize: parseLongNumber(tokens[0]) * parseByteUnitsFactor(tokens[1]),
-						CummulativeSize: parseLongNumber(tokens[2]) * parseByteUnitsFactor(tokens[3])
+						IncrementSize: new DataSize(parseDoubleNumber(tokens[0]) ?? double.NaN, tokens[1]),
+						CummulativeSize: new DataSize(parseDoubleNumber(tokens[2]) ?? double.NaN, tokens[3])
 						));
 				}
 				lineIndex += 1;
@@ -136,7 +138,7 @@ namespace Cloudberry.Data
 			return tsc.Task;
 		}
 
-		private static long? parseLongNumber(string text) => long.TryParse(text, out var value) ? value : null;
+		private static double? parseDoubleNumber(string text) => double.TryParse(text, out var value) ? value : null;
 
 		private static long? parseByteUnitsFactor(string text) => text switch
 		{

@@ -41,7 +41,7 @@
                     <td>
                         @if (entry is FileEntry { Size: var size })
                         {
-                            <span class="text-muted">@(size) B</span>
+                            <span class="text-muted">@(size.Value) @(size.Units)</span>
                         }
                     </td>
                 </tr>
@@ -55,7 +55,7 @@
     <select class="form-control">
         @for (int i = 0; i < backupIncrements.Count; i++)
         {
-            <option value="@i">@(backupIncrements[i].DateTime) | @(backupIncrements[i].IncrementSize) Bytes</option>
+            <option value="@i">@(backupIncrements[i].DateTime) | @(backupIncrements[i].IncrementSize.Value) @(backupIncrements[i].IncrementSize.Units)</option>
         }
     </select>
 
