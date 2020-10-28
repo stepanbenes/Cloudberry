@@ -71,6 +71,7 @@
     {
         try
         {
+            // TODO: make async and load lazily
             directoryContent = DataBackupService.GetFileSystemEntries(relativePath: DirectoryPath ?? "").ToList();
 
             backupDateTimes = await DataBackupService.GetBackupDateTimes(relativePath: DirectoryPath ?? "");

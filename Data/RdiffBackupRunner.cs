@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography.Xml;
+using System.Globalization;
 
 namespace Cloudberry.Data
 {
@@ -49,6 +50,8 @@ Sun Oct 11 14:10:40 2020        76 bytes           5.74 GB
 Sun Oct 11 13:53:34 2020        72 bytes           5.74 GB
 Sun Oct 11 13:45:47 2020        73 bytes           5.74 GB";
 
+			string dateTimeFormat = "ddd MMM dd hh:mm:ss yyyy";
+
 			using StringReader stringReader = new(output);
 			List<DateTime> result = new();
 			int lineIndex = 0;
@@ -59,7 +62,7 @@ Sun Oct 11 13:45:47 2020        73 bytes           5.74 GB";
 					string[] tokens = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 					if (tokens.Length == 0)
 						throw new InvalidOperationException("Unexpected output format");
-					DateTime dateTime = DateTime.Parse(tokens[0]);
+					DateTime dateTime = DateTime.ParseExact(tokens[0], dateTimeFormat, CultureInfo.InvariantCulture);
 					result.Add(dateTime);
 				}
 				lineIndex += 1;
