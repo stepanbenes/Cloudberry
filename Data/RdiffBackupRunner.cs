@@ -59,10 +59,7 @@ Sun Oct 11 13:45:47 2020        73 bytes           5.74 GB";
 			{
 				if (lineIndex >= 2) // skip first two lines
 				{
-					string[] tokens = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-					if (tokens.Length == 0)
-						throw new InvalidOperationException("Unexpected output format");
-					DateTime dateTime = DateTime.ParseExact(tokens[0], dateTimeFormat, CultureInfo.InvariantCulture);
+					DateTime dateTime = DateTime.ParseExact(line, dateTimeFormat, CultureInfo.InvariantCulture);
 					result.Add(dateTime);
 				}
 				lineIndex += 1;
