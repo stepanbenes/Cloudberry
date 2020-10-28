@@ -68,7 +68,7 @@ namespace Cloudberry.Data
 				if (lineIndex >= 2) // skip first two lines
 				{
 					DateTime dateTime = DateTime.ParseExact(line[..dateTimeFormat.Length], dateTimeFormat, CultureInfo.InvariantCulture);
-					string[] tokens = line[dateTimeFormat.Length..].Split(new[] { ' ', '\t' });
+					string[] tokens = line[dateTimeFormat.Length..].Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
 
 					result.Add(new(dateTime,
 						IncrementSize: parseLongNumber(tokens[0]) * parseByteUnitsFactor(tokens[1]),
