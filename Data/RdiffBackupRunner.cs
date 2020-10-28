@@ -50,7 +50,7 @@ Sun Oct 11 14:10:40 2020        76 bytes           5.74 GB
 Sun Oct 11 13:53:34 2020        72 bytes           5.74 GB
 Sun Oct 11 13:45:47 2020        73 bytes           5.74 GB";
 
-			string dateTimeFormat = "ddd MMM dd hh:mm:ss yyyy";
+			string dateTimeFormat = "ddd MMM dd HH:mm:ss yyyy";
 
 			using StringReader stringReader = new(output);
 			List<DateTime> result = new();
