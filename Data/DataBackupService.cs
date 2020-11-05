@@ -25,6 +25,8 @@ namespace Cloudberry.Data
 		//public static readonly string DataBaseDirectoryPath = @"/mnt/sidlo_data/data";
 		public static readonly string BackupBaseDirectoryPath = @"/mnt/sidlo_backup/data";
 
+		private static readonly HashSet<string> excludedSubdirectories = new() { "rdiff-backup-data" };
+
 		private readonly ILogger<DataBackupService> logger;
 
 		public DataBackupService(ILoggerFactory loggerFactory) => this.logger = loggerFactory.CreateLogger<DataBackupService>();
@@ -38,14 +40,18 @@ namespace Cloudberry.Data
 
 		public IEnumerable<FileSystemEntry> GetFileSystemEntries(string relativePath)
 		{
-			string directoryPath = Path.Combine(BackupBaseDirectoryPath, relativePath);
+			string baseDirectoryPath = Path.Combine(BackupBaseDirectoryPath, relativePath);
 
-			foreach (string directory in Directory.EnumerateDirectories(directoryPath))
+			foreach (string subdirectoryPath in Directory.EnumerateDirectories(baseDirectoryPath))
 			{
-				yield return new DirectoryEntry(Path.GetFileName(directory));
+				string subdirectoryName = Path.GetFileName(subdirectoryPath);
+				if (!excludedSubdirectories.Contains(subdirectoryName))
+				{
+					yield return new DirectoryEntry(subdirectoryName);
+				}
 			}
 
-			foreach (string file in Directory.EnumerateFiles(directoryPath))
+			foreach (string file in Directory.EnumerateFiles(baseDirectoryPath))
 			{
 				var fileInfo = new FileInfo(file);
 				yield return new FileEntry(Path.GetFileName(file), Size: new(fileInfo.Length, "bytes"));
@@ -60,7 +66,7 @@ namespace Cloudberry.Data
 
 			logger.LogInformation(output);
 
-			string dateTimeFormat = "ddd MMM dd HH:mm:ss yyyy";
+			string dateTimeFormat = "ddd MMM d HH:mm:ss yyyy";
 
 			using StringReader stringReader = new(output);
 			List<BackupIncrementInfo> result = new();
