@@ -66,7 +66,7 @@ namespace Cloudberry.Data
 
 			logger.LogInformation(output);
 
-			string dateTimeFormat = "ddd MMM d HH:mm:ss yyyy";
+			//string dateTimeFormat = "ddd MMM d HH:mm:ss yyyy";
 
 			using StringReader stringReader = new(output);
 			List<BackupIncrementInfo> result = new();
@@ -75,17 +75,33 @@ namespace Cloudberry.Data
 			{
 				if (lineIndex >= 2) // skip first two lines
 				{
-					DateTime dateTime = DateTime.ParseExact(line[..dateTimeFormat.Length], dateTimeFormat, CultureInfo.InvariantCulture);
-					string[] tokens = line[dateTimeFormat.Length..].Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+					//DateTime dateTime = DateTime.ParseExact(line[..dateTimeFormat.Length], dateTimeFormat, CultureInfo.InvariantCulture);
+					string[] tokens = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+					if (tokens.Length < 9)
+						throw new InvalidOperationException("backup increment info has unexpected format");
 
-					result.Add(new(dateTime,
-						IncrementSize: new DataSize(parseDoubleNumber(tokens[0]) ?? double.NaN, tokens[1]),
-						CummulativeSize: new DataSize(parseDoubleNumber(tokens[2]) ?? double.NaN, tokens[3])
+					DateTime? dateTime = tryParseDateTime(tokens.Take(5));
+
+					result.Add(new(dateTime ?? throw new InvalidOperationException("datetime could not be parsed"),
+						IncrementSize: new DataSize(parseDoubleNumber(tokens[5]) ?? double.NaN, tokens[6]),
+						CummulativeSize: new DataSize(parseDoubleNumber(tokens[7]) ?? double.NaN, tokens[8])
 						));
 				}
 				lineIndex += 1;
 			}
 			return result;
+
+			static DateTime? tryParseDateTime(IEnumerable<string> parts)
+			{
+				DateTime result;
+				if (DateTime.TryParseExact(string.Join(' ', parts), format: "ddd MMM dd HH:mm:ss yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+					return result;
+
+				if (DateTime.TryParseExact(string.Join(' ', parts), format: "ddd MMM d HH:mm:ss yyyy", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out result))
+					return result;
+
+				return null;
+			}
 		}
 
 		public IEnumerable<(string pathSegment, string combinedPath)> DirectorySplit(string? path)
