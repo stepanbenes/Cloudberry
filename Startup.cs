@@ -30,8 +30,8 @@ namespace Cloudberry
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
 			services.AddSingleton<ICpuTemperatureService, RealCpuTemperatureService>();
-			services.AddSingleton<MarksDiaryService>();
-			services.AddSingleton<DataBackupService>();
+			services.AddScoped<MarksDiaryService>();
+			services.AddScoped<DataBackupService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -50,11 +50,11 @@ namespace Cloudberry
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
-			app.UseStaticFiles(new StaticFileOptions()
-			{
-				FileProvider = new PhysicalFileProvider(@"/mnt/sidlo_data/data/marek/denik"),
-				RequestPath = new PathString("/denik")
-			});
+			//app.UseStaticFiles(new StaticFileOptions()
+			//{
+			//	FileProvider = new PhysicalFileProvider(@"/mnt/sidlo_data/data/marek/denik"),
+			//	RequestPath = new PathString("/denik")
+			//});
 
 			app.UseRouting();
 
