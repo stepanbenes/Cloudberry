@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29123.89
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloudberry", "Cloudberry.csproj", "{FE23A1F1-1CBE-40B2-87EB-020A25E30C43}"
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloudberry.Server", "src\Server\Cloudberry.Server.csproj", "{D78784CD-2985-40D8-B49D-9DAD2BD86686}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloudberry.Client", "src\Client\Cloudberry.Client.csproj", "{53D70C5A-0A61-486B-82CB-16699D6A6A34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cloudberry.Shared", "src\Shared\Cloudberry.Shared.csproj", "{C6A4E02D-F573-4E52-8BB7-096D181BBEF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +15,23 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FE23A1F1-1CBE-40B2-87EB-020A25E30C43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FE23A1F1-1CBE-40B2-87EB-020A25E30C43}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FE23A1F1-1CBE-40B2-87EB-020A25E30C43}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FE23A1F1-1CBE-40B2-87EB-020A25E30C43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D78784CD-2985-40D8-B49D-9DAD2BD86686}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D78784CD-2985-40D8-B49D-9DAD2BD86686}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D78784CD-2985-40D8-B49D-9DAD2BD86686}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D78784CD-2985-40D8-B49D-9DAD2BD86686}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53D70C5A-0A61-486B-82CB-16699D6A6A34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53D70C5A-0A61-486B-82CB-16699D6A6A34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53D70C5A-0A61-486B-82CB-16699D6A6A34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53D70C5A-0A61-486B-82CB-16699D6A6A34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6A4E02D-F573-4E52-8BB7-096D181BBEF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6A4E02D-F573-4E52-8BB7-096D181BBEF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6A4E02D-F573-4E52-8BB7-096D181BBEF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6A4E02D-F573-4E52-8BB7-096D181BBEF8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {8B853596-09F0-4E31-BBF8-805E7E204082}
+		SolutionGuid = {A9CD7FE5-EB5B-4F70-87C7-8255B17BC6B2}
 	EndGlobalSection
 EndGlobal
