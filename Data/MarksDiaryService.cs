@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.IO;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace Cloudberry.Data
 {
@@ -103,9 +104,10 @@ namespace Cloudberry.Data
 						case ".txt":
 							{
 								text = await File.ReadAllTextAsync(filepath);
-								if (int.TryParse(text[..text.IndexOf(' ')], out int value))
+								Match match = Regex.Match(text, @"^\d+");
+								if (match.Success)
 								{
-									weight = value;
+    								weight = int.Parse(match.Value);
 								}
 							}
 							break;
