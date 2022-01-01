@@ -15,7 +15,7 @@
 @inject MarksDiaryService MarkWeightService
 @inject NavigationManager NavigationManager
 
-<Chart TConfig="LineConfig" Config="config" @ref="lineChart"></Chart>
+<Chart Config="config" @ref="lineChart"></Chart>
 
 <div class="my-4">
     <select class="form-control" value="@selectedDayNumber" @onchange="OnSelectedDayChanged">
