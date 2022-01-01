@@ -28,7 +28,7 @@ namespace Cloudberry
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddRazorPages();
-			services.AddServerSideBlazor();
+			services.AddServerSideBlazor(options => options.DetailedErrors = true);
 			services.AddSingleton<ICpuTemperatureService, RealCpuTemperatureService>();
 			services.AddScoped<MarksDiaryService>();
 			services.AddScoped<DataBackupService>();
