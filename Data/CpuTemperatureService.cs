@@ -17,13 +17,13 @@ namespace Cloudberry.Data
 		{
 			var cpuTempProvider = new CpuTemperature();
 			var cpuTemp = cpuTempProvider.Temperature;
-			return cpuTemp.Celsius;
+			return cpuTemp.DegreesCelsius;
 		}
 	}
 
 	public class FakeCpuTemperatureService : ICpuTemperatureService
 	{
-		private readonly Random random = new Random();
+		private readonly Random random = new();
 
 		public double GetTemperatureInCelsius()
 		{
