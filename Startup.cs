@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Cloudberry.Data;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using WebSocketManager;
+using Cloudberry.Data;
+using Cloudberry.DeepSpaceNetwork;
 
 namespace Cloudberry
 {
@@ -32,10 +34,11 @@ namespace Cloudberry
 			services.AddSingleton<ICpuTemperatureService, RealCpuTemperatureService>();
 			services.AddScoped<MarksDiaryService>();
 			services.AddScoped<DataBackupService>();
+			services.AddWebSocketManager();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
 		{
 			app.UseForwardedHeaders(new ForwardedHeadersOptions
 			{
@@ -55,6 +58,7 @@ namespace Cloudberry
 				FileProvider = new PhysicalFileProvider(@"/mnt/sidlo_data/data/marek/denik"),
 				RequestPath = new PathString("/denik")
 			});
+			app.UseWebSockets();
 
 			app.UseRouting();
 
@@ -64,6 +68,8 @@ namespace Cloudberry
 				endpoints.MapBlazorHub();
 				endpoints.MapFallbackToPage("/_Host");
 			});
+
+			app.MapWebSocketManager("/deep-space-network", serviceProvider.GetService<RobotMessageHandler>());
 		}
 	}
 }

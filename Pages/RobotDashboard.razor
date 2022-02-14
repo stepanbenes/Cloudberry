@@ -1,0 +1,11 @@
+﻿@page "/robot-dashboard"
+@using Cloudberry.DeepSpaceNetwork
+@inject RobotMessageHandler robotMessageHandler
+
+<h3>Robot dashboard</h3>
+
+<button class="btn btn-primary" @onclick="async () => await robotMessageHandler.SendHello()">Send message</button>
+
+@code {
+
+}
