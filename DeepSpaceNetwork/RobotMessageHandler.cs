@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 using WebSocketManager;
@@ -11,6 +13,11 @@ public class RobotMessageHandler : WebSocketHandler
     public RobotMessageHandler(WebSocketConnectionManager webSocketConnectionManager)
         : base(webSocketConnectionManager)
     { }
+
+    private HashSet<string> connectedIds = new();
+
+    public event Action<string>? OnRobotConnected;
+    public event Action<string>? OnRobotDisconnected;
 
     public async Task SendHello()
     {
@@ -28,6 +35,10 @@ public class RobotMessageHandler : WebSocketHandler
         await base.OnConnected(socket);
 
         var socketId = WebSocketConnectionManager.GetId(socket);
+
+        connectedIds.Add(socketId);
+
+        OnRobotConnected?.Invoke(socketId);
 
         var message = new Message()
         {
@@ -47,9 +58,13 @@ public class RobotMessageHandler : WebSocketHandler
 
     public override async Task OnDisconnected(WebSocket socket)
     {
+        await base.OnDisconnected(socket);
+
         var socketId = WebSocketConnectionManager.GetId(socket);
 
-        await base.OnDisconnected(socket);
+        connectedIds.Remove(socketId);
+
+        OnRobotDisconnected?.Invoke(socketId);
 
         var message = new Message()
         {
