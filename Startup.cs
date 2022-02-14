@@ -53,14 +53,16 @@ namespace Cloudberry
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
-			app.UseStaticFiles(new StaticFileOptions()
-			{
-				FileProvider = new PhysicalFileProvider(@"/mnt/sidlo_data/data/marek/denik"),
-				RequestPath = new PathString("/denik")
-			});
-			app.UseWebSockets();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(@"/mnt/sidlo_data/data/marek/denik"),
+                RequestPath = new PathString("/denik")
+            });
+            app.UseWebSockets();
 
 			app.UseRouting();
+
+			app.MapWebSocketManager("/deep-space-network", serviceProvider.GetService<RobotMessageHandler>());
 
 			app.UseEndpoints(endpoints =>
 			{
@@ -68,8 +70,6 @@ namespace Cloudberry
 				endpoints.MapBlazorHub();
 				endpoints.MapFallbackToPage("/_Host");
 			});
-
-			app.MapWebSocketManager("/deep-space-network", serviceProvider.GetService<RobotMessageHandler>());
 		}
 	}
 }
