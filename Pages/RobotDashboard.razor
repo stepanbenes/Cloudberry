@@ -25,12 +25,20 @@
 
     private void RobotConnectedHandler(string id)
     {
-        messages.Add($"Robot '{id}' connected.");
+        _ = InvokeAsync(() =>
+        {
+            messages.Add($"Robot '{id}' connected.");
+            StateHasChanged();
+        });
     }
 
     private void RobotDisconnectedHandler(string id)
     {
-        messages.Add($"Robot '{id}' disconnected.");
+        _ = InvokeAsync(() =>
+        {
+            messages.Add($"Robot '{id}' disconnected.");
+            StateHasChanged();
+        });
     }
 
     void IDisposable.Dispose()
