@@ -8,10 +8,10 @@
 <button class="btn btn-primary" @onclick="async () => await robotMessageHandler.SendHello()">Send message</button>
 
 <div>
-@foreach (var message in messages)
-{
-    <span class="text-secondary">@message</span>
-}
+    @foreach (var message in messages)
+    {
+        <h5 class="text-secondary">@message</h5>
+    }
 </div>
 
 @code {
