@@ -27,7 +27,7 @@ public class RobotMessageHandler : WebSocketHandler
             Data = $"Hello!"
         };
 
-        await SendMessageToAllAsync(message);
+        await InvokeClientMethodToAllAsync("rumble", 1, 2, 3);
     }
 
     public override async Task OnConnected(WebSocket socket)
