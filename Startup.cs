@@ -53,15 +53,15 @@ namespace Cloudberry
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
-			string rootDirectory = MarksDiaryService.SourceDirectoryPath;
-			if (Directory.Exists(rootDirectory))
-			{
+			//string rootDirectory = MarksDiaryService.SourceDirectoryPath;
+			//if (Directory.Exists(rootDirectory))
+			//{
 				app.UseStaticFiles(new StaticFileOptions()
 				{
-					FileProvider = new PhysicalFileProvider(rootDirectory),
+					FileProvider = new PhysicalFileProvider(MarksDiaryService.SourceDirectoryPath),
 					RequestPath = new PathString("/denik")
 				});
-			}
+			//}
             app.UseWebSockets();
 
 			app.UseRouting();
