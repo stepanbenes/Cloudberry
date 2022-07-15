@@ -13,9 +13,9 @@
 
   <ItemGroup>
     <PackageReference Include="ChartJs.Blazor.Fork" Version="2.0.2" />
-    <PackageReference Include="Iot.Device.Bindings" Version="1.5.0" />
+    <PackageReference Include="Iot.Device.Bindings" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="6.0.0" />
-    <PackageReference Include="System.Device.Gpio" Version="1.5.0" />
+    <PackageReference Include="System.Device.Gpio" Version="2.1.0" />
     <PackageReference Include="WebSocketManager" Version="1.0.1" />
   </ItemGroup>
 
