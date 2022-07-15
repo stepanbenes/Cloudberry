@@ -53,11 +53,15 @@ namespace Cloudberry
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
-            app.UseStaticFiles(new StaticFileOptions()
-            {
-                FileProvider = new PhysicalFileProvider(@"/mnt/sidlo_data/data/marek/denik"),
-                RequestPath = new PathString("/denik")
-            });
+			const string rootDirectory = @"/mnt/sidlo_data/data/marek/denik";
+			if (Directory.Exists(rootDirectory))
+			{
+				app.UseStaticFiles(new StaticFileOptions()
+				{
+					FileProvider = new PhysicalFileProvider(rootDirectory),
+					RequestPath = new PathString("/denik")
+				});
+			}
             app.UseWebSockets();
 
 			app.UseRouting();
