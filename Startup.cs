@@ -53,7 +53,7 @@ namespace Cloudberry
 
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
-			const string rootDirectory = @"/mnt/sidlo_data/data/marek/denik";
+			string rootDirectory = MarksDiaryService.SourceDirectoryPath;
 			if (Directory.Exists(rootDirectory))
 			{
 				app.UseStaticFiles(new StaticFileOptions()

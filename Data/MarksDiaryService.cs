@@ -85,6 +85,8 @@ namespace Cloudberry.Data
 		private static async Task<Day?> parseDayAsync(string directoryPath)
 		{
 			string directoryName = Path.GetFileName(directoryPath);
+			if (!directoryName.StartsWith("den_"))
+				return null;
 			string[] tokens = directoryName.Split('_');
 			if (tokens.Length <= 1)
 				return null;
