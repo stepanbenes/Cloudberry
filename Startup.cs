@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
 using Microsoft.AspNetCore.Http;
+using WebSocketManager;
 using Cloudberry.Data;
 using Cloudberry.DeepSpaceNetwork;
 
@@ -33,6 +34,7 @@ namespace Cloudberry
 			services.AddSingleton<ICpuTemperatureService, RealCpuTemperatureService>();
 			services.AddScoped<MarksDiaryService>();
 			services.AddScoped<DataBackupService>();
+			services.AddWebSocketManager();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,11 +64,9 @@ namespace Cloudberry
 			}
             app.UseWebSockets();
 
-            app.UseWebSockets();
+			app.UseRouting();
 
-            app.UseMiddleware<DeepSpaceNetworkMiddleware>();
-
-            app.UseRouting();
+			app.MapWebSocketManager("/deep-space-network", serviceProvider.GetService<RobotMessageHandler>());
 
 			app.UseEndpoints(endpoints =>
 			{
